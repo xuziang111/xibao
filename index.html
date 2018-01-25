@@ -1,0 +1,219 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title></title>
+</head>
+<body>
+<canvas id="canvas" style="border: 1px solid gray; height: 100%">浏览器不支持canvas
+</canvas>
+<script>
+//点阵的竖直方向数量
+var height = 200;
+//点阵的水平方向数量
+var width = 300;
+//设置初始生命数量
+var number = 9100;
+var lifes = [];
+var context;
+//var arrayb = [];
+window.onload = function () {
+var canvas = document.getElementById("canvas");
+//设置canvas的高度
+canvas.height = height * 9;
+//设置canvas的宽度
+canvas.width = width * 9;
+context = canvas.getContext("2d");
+setLifes();
+update();
+render(context);
+setInterval(function () {
+update();
+render(context);
+}, 500);
+};
+
+//更新下一次的存活情况
+function update() {
+for (var i = 0; i < width; i++) {
+for (var j = 0; j < height; j++) {
+checkNextLives(i, j);
+}
+}
+}
+
+//绘制图像
+function render(context) {
+context.clearRect(0, 0, width * 9, height * 9);
+for (var i = 0; i < width; i++) {
+for (var j = 0; j < height; j++) {
+if (lifes[j][i].isLive == true) {
+context.fillRect(i * 9, j * 9, 8, 8);
+}
+lifes[j][i].isLive = lifes[j][i].nextLive;
+lifes[j][i].nextLive = false;
+}
+}
+}
+
+//设置初始生命数量
+function setLifes() {
+var lifeNum = parseInt(Math.random() * 20) + number;
+for (var j = 0; j < height; j++) {
+lifes[j] = new Array();
+for (var i = 0; i < width; i++) {
+var life = {
+isLive: false,
+nextLive: false
+};
+lifes[j][i] = life;
+}
+
+}
+for (var i = 0; i < lifeNum; i++) {
+var x = parseInt(Math.random() * width);
+var y = parseInt(Math.random() * height);
+while (checkRepeat(x, y)) {
+x = parseInt(Math.random() * width);
+y = parseInt(Math.random() * height);
+}
+var life = {
+isLive: true,
+nextLive: false
+};
+lifes[y][x] = life;
+}
+}
+//检测重复添加
+function checkRepeat(x, y) {
+if (lifes[y][x].isLive == true) {
+return true;
+}
+return false;
+}
+//设置下一个时刻的生命形态
+function checkNextLives(i, j) {
+var xnum = 3, ynum = 3;
+var count = 0;
+if (i == 0 || i == width - 1) {
+xnum = 2;
+}
+if (j == 0 || j == height - 1) {
+ynum = 2;
+}
+if (xnum == ynum && xnum == 3) {
+for (var a = i - 1; a < i + 2; a++) {
+for (var b = j - 1; b < j + 2; b++) {
+if (lifes[b][a].isLive == true && !(a == i && b == j)) {
+count++;
+}
+}
+}
+}
+else if (xnum != ynum) {
+if (xnum == 3) {
+if (j == 0) {
+for (var a = i - 1; a < i + 2; a++) {
+for (var b = j ; b < j + 2; b++) {
+if (lifes[b][a].isLive == true && !(a == i && b == j)) {
+count++;
+}
+}
+}
+}
+else {
+for (var a = i - 1; a < i + 2; a++) {
+for (var b = j - 1; b < j + 1; b++) {
+if (lifes[b][a].isLive == true && !(a == i && b == j)) {
+count++;
+}
+}
+}
+}
+}
+else {
+if (i == 0) {
+for (var a = i ; a < i + 2; a++) {
+for (var b = j - 1; b < j + 2; b++) {
+if (lifes[b][a].isLive == true && !(a == i && b == j)) {
+count++;
+}
+}
+}
+}
+else {
+for (var a = i - 1; a < i + 1; a++) {
+for (var b = j - 1; b < j + 2; b++) {
+if (lifes[b][a].isLive == true && !(a == i && b == j)) {
+count++;
+}
+}
+}
+}
+}
+}
+else {
+if (i == 0 && j == 0) {
+if (lifes[0][1].isLive == true) {
+count++;
+}
+if (lifes[1][0].isLive == true) {
+count++;
+}
+if (lifes[1][1].isLive == true) {
+count++;
+}
+}
+else if (i == 0 && j == height - 1) {
+if (lifes[height - 1][1].isLive == true) {
+count++;
+}
+if (lifes[height - 2][0].isLive == true) {
+count++;
+}
+if (lifes[height - 2][1].isLive == true) {
+count++;
+}
+}
+else if (i == width - 1 && j == 0) {
+if (lifes[0][width - 2].isLive == true) {
+count++;
+}
+if (lifes[1][width - 2].isLive == true) {
+count++;
+}
+if (lifes[1][width - 1].isLive == true) {
+count++;
+}
+}
+else if (i == width - 1 && j == height - 1) {
+if (lifes[height - 2][width - 1].isLive == true) {
+count++;
+}
+if (lifes[height - 2][width - 2].isLive == true) {
+count++;
+}
+if (lifes[height - 1][width - 2].isLive == true) {
+count++;
+}
+}
+}
+if (count < 2) {
+lifes[j][i].nextLive = false;
+}
+else if (count == 2) {
+if (lifes[j][i].isLive == true) {
+lifes[j][i].nextLive = true;
+}
+}
+else if (count == 3) {
+lifes[j][i].nextLive = true;
+}
+else {
+lifes[j][i].nextLive = false;
+}
+}
+</script>
+</body>
+</html>
